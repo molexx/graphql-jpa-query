@@ -115,7 +115,7 @@ public class GraphQLJpaSchemaBuilder implements GraphQLSchemaBuilder {
             .build();
     }
 
-    private GraphQLObjectType getQueryType() {
+    protected GraphQLObjectType getQueryType() {
         GraphQLObjectType.Builder queryType = 
             GraphQLObjectType.newObject()
                 .name(this.name)
