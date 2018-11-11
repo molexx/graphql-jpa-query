@@ -647,7 +647,7 @@ public class GraphQLJpaSchemaBuilder implements GraphQLSchemaBuilder {
      *
      * @param type
      */
-    private void setNoOpCoercing(GraphQLType type) {
+    protected void setNoOpCoercing(GraphQLType type) {
         try {
             Field coercing = type.getClass().getDeclaredField("coercing");
             coercing.setAccessible(true);
