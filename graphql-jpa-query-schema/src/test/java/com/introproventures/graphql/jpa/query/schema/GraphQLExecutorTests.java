@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
@@ -37,6 +38,7 @@ import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaSchemaBuilde
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.NONE)
+@TestPropertySource({"classpath:hibernate.properties"})
 public class GraphQLExecutorTests {
     
     @SpringBootApplication
@@ -326,6 +328,22 @@ public class GraphQLExecutorTests {
         assertThat(result.toString()).isEqualTo(expected);
     }
         
+    @Test
+    public void queryForParentWithEnum() {
+        //given
+        String query = "{ Books { select { id title, author( where: { genre: { EQ: NOVEL } }) { name } } } }";
+        
+        String expected = "{Books={select=["
+        		+ "{id=2, title=War and Peace, author={name=Leo Tolstoy}}, "
+        		+ "{id=3, title=Anna Karenina, author={name=Leo Tolstoy}}"
+        		+ "]}}";
+
+        //when
+        Object result = executor.execute(query).getData();
+
+        // then
+        assertThat(result.toString()).isEqualTo(expected);
+    }
     
     
     // https://github.com/introproventures/graphql-jpa-query/issues/30
@@ -357,21 +375,20 @@ public class GraphQLExecutorTests {
         // then
         assertThat(result.toString()).isEqualTo(expected);
     }
-    
-//    // TODO
-//    @Test
-//    public void queryForEntityWithEmeddableTypeAndWhere() {
-//        //given
-//        String query = "{ Boats { id engine(where: { identification: { EQ: \"12345\"}}) { identification } } }";
-//        
-//        String expected = "{Boats={select[id=1, engine={identification=12345}]}}";
-//
-//        //when
-//        Object result = executor.execute(query).getData();
-//
-//        // then
-//        assertThat(result.toString()).isEqualTo(expected);
-//    }
+
+    @Test
+    public void queryForEntityWithEmeddableTypeAndWhere() {
+        //given
+        String query = "{ Boats { select { id engine(where: { identification: { EQ: \"12345\"}}) { identification } } } }";
+
+        String expected = "{Boats={select=[{id=1, engine={identification=12345}}]}}";
+
+        //when
+        Object result = executor.execute(query).getData();
+
+        // then
+        assertThat(result.toString()).isEqualTo(expected);
+    }
     
     
 
