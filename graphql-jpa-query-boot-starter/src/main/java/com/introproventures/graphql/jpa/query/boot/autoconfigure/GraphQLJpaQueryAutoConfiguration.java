@@ -25,9 +25,12 @@ import org.springframework.context.annotation.Configuration;
 
 import com.introproventures.graphql.jpa.query.autoconfigure.GraphQLSchemaConfigurer;
 import com.introproventures.graphql.jpa.query.autoconfigure.GraphQLShemaRegistration;
+import com.introproventures.graphql.jpa.query.schema.GraphQLExecutionInputFactory;
 import com.introproventures.graphql.jpa.query.schema.GraphQLExecutor;
+import com.introproventures.graphql.jpa.query.schema.GraphQLExecutorContextFactory;
 import com.introproventures.graphql.jpa.query.schema.GraphQLSchemaBuilder;
 import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaExecutor;
+import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaExecutorContextFactory;
 import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaSchemaBuilder;
 
 import graphql.GraphQL;
@@ -55,15 +58,29 @@ public class GraphQLJpaQueryAutoConfiguration {
     
     @Configuration
     public static class DefaultGraphQLJpaQueryConfiguration {
+
+        @Bean 
+        @ConditionalOnMissingBean
+        public GraphQLExecutionInputFactory graphQLExecutionInputFactory() {
+            return new GraphQLExecutionInputFactory() { };
+        }
         
-        @Bean
-        @ConditionalOnMissingBean(GraphQLExecutor.class)
-        public GraphQLExecutor graphQLExecutor(GraphQLSchema graphQLSchema) {
-            return new GraphQLJpaExecutor(graphQLSchema);
+        @Bean 
+        @ConditionalOnMissingBean
+        public GraphQLExecutorContextFactory graphQLExecutorContextFactory(GraphQLExecutionInputFactory graphQLExecutionInputFactory) {
+            return new GraphQLJpaExecutorContextFactory(graphQLExecutionInputFactory);
         }
 
         @Bean
-        @ConditionalOnMissingBean(GraphQLSchemaBuilder.class)
+        @ConditionalOnMissingBean
+        public GraphQLExecutor graphQLExecutor(GraphQLSchema graphQLSchema,
+                                               GraphQLExecutorContextFactory graphQLExecutorContextFactory) {
+            return new GraphQLJpaExecutor(graphQLSchema,
+                                          graphQLExecutorContextFactory);
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
         public GraphQLSchemaBuilder graphQLSchemaBuilder(final EntityManager entityManager) {
             return new GraphQLJpaSchemaBuilder(entityManager);
         }

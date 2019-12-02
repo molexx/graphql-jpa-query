@@ -26,9 +26,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.introproventures.graphql.jpa.query.schema.GraphQLExecutionInputFactory;
 import com.introproventures.graphql.jpa.query.schema.GraphQLExecutor;
+import com.introproventures.graphql.jpa.query.schema.GraphQLExecutorContextFactory;
 import com.introproventures.graphql.jpa.query.schema.GraphQLSchemaBuilder;
 import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaExecutor;
+import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaExecutorContextFactory;
 import com.introproventures.graphql.jpa.query.schema.impl.GraphQLJpaSchemaBuilder;
 import com.introproventures.graphql.jpa.query.starter.model.Author;
 
@@ -49,7 +52,13 @@ public class GraphQLJpaQueryAutoConfigurationTest {
 
     @Autowired(required=false)
     private GraphQLSchemaBuilder graphQLSchemaBuilder;
+    
+    @Autowired(required=false)
+    private GraphQLExecutorContextFactory executorContextFactory;   
 
+    @Autowired(required=false)
+    private GraphQLExecutionInputFactory executionInputFactory;   
+    
     @Autowired
     private GraphQLSchema graphQLSchema;
     
@@ -61,6 +70,11 @@ public class GraphQLJpaQueryAutoConfigurationTest {
         assertThat(graphQLSchemaBuilder).isNotNull()
                                         .isInstanceOf(GraphQLJpaSchemaBuilder.class);
         
+        assertThat(executorContextFactory).isNotNull()
+                                          .isInstanceOf(GraphQLJpaExecutorContextFactory.class);
+
+        assertThat(executionInputFactory).isNotNull()
+                                          .isInstanceOf(GraphQLExecutionInputFactory.class);
         
         assertThat(graphQLSchema.getQueryType())
                                 .extracting(GraphQLObjectType::getName, GraphQLObjectType::getDescription)
